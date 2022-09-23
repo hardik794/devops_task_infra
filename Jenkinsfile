@@ -81,9 +81,7 @@ pipeline {
             }
           }
         }
-        always {
-          cleanWs()
-        }
+        cleanWs()
       }
     }
   }
