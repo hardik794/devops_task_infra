@@ -33,3 +33,9 @@ variable "name" {
   default     = "test"
   description = "Name of the infrastructure"
 }
+
+variable "ec2_name" {
+  type        = list(string)
+  default     = ["test"]
+  description = "Names of the instance"
+}

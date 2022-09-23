@@ -12,7 +12,7 @@ pipeline {
     stage("Initialization") {
       steps {
         script {
-          sh "mv $DEPLOYMENT_PARAM_INFRA_PATH/$INFRA_NAME/$DEPLOYMENT_PARAM_TFVAR terraform-modules/infra_terraform.tfvars"
+          sh "mv $DEPLOYMENT_PARAM_INFRA_PATH/$INFRA_NAME/$DEPLOYMENT_PARAM_TFVAR terraform-modules/b_terraform.auto.tfvars"
           dir('terraform-modules') {
             withCredentials(
               [
@@ -81,13 +81,10 @@ pipeline {
             }
           }
         }
+        always {
+          cleanWs()
+        }
       }
-    }
-  }
-
-  post {
-    always {
-      cleanWs()
     }
   }
 }
