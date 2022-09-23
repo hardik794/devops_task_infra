@@ -5,34 +5,14 @@ pipeline {
     DEPLOYMENT_PARAM_TFVAR = "terraform.tfvars"
     TERRAFORM_STATE_S3_BUCKET = "hands-on-tf-state"
     TERRAFORM_STATE_S3_BUCKET_REGION = "us-east-1"
+    INFRA_NAME = "${params.InfraName}"
+    ACTION = "${params.Action}"
   }
   stages {
-    stage('Setup Parameters') {
-      steps {
-        script {
-          properties(
-            [
-              parameters(
-                [
-                  string(
-                    name: 'InfraName',
-                  ),
-                  choice(
-                    choices: ['Deploy', 'Destroy'],
-                    name: 'Action',
-                  ),
-                ]
-              )
-            ]
-          )
-        }
-      }
-    }
-
     stage("Initialization") {
       steps {
         script {
-          sh "mv $DEPLOYMENT_PARAM_INFRA_PATH/${params.InfraName}/$DEPLOYMENT_PARAM_TFVAR terraform-modules/infra_terraform.tfvars"
+          sh "mv $DEPLOYMENT_PARAM_INFRA_PATH/$INFRA_NAME/$DEPLOYMENT_PARAM_TFVAR terraform-modules/infra_terraform.tfvars"
           dir('terraform-modules') {
             withCredentials(
               [
@@ -44,7 +24,7 @@ pipeline {
                 ]
               ]
             ) {
-              sh "terraform init -no-color -backend-config='bucket=${TERRAFORM_STATE_S3_BUCKET}' -backend-config='key=${params.InfraName}' -backend-config='region=${TERRAFORM_STATE_S3_BUCKET_REGION}' "
+              sh "terraform init -no-color -backend-config='bucket=${TERRAFORM_STATE_S3_BUCKET}' -backend-config='key=${INFRA_NAME}' -backend-config='region=${TERRAFORM_STATE_S3_BUCKET_REGION}' "
             }
           }
         }
@@ -54,7 +34,7 @@ pipeline {
     stage("Infrastructure Deploy") {
       when {
         expression {
-          params.Action == "Deploy"
+          ACTION == "Deploy"
         }
       }
       steps {
@@ -81,7 +61,7 @@ pipeline {
     stage("Infrastructure Destroy") {
       when {
         expression {
-          params.Action == "Destroy"
+          ACTION == "Destroy"
         }
       }
       steps {
