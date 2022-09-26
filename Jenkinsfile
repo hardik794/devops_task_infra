@@ -30,12 +30,36 @@ pipeline {
         }
       }
     }
+    stage("Infrastructure Plan") {
+      steps {
+        script {
+          dir('terraform-modules') {
+            withCredentials(
+              [
+                [
+                  $class: 'AmazonWebServicesCredentialsBinding',
+                  credentialsId: 'AWS Credentials',
+                  accessKeyVariable: 'AWS_ACCESS_KEY_ID',
+                  secretKeyVariable: 'AWS_SECRET_ACCESS_KEY'
+                ]
+              ]
+            ) {
+              sh "terraform plan -no-color"
+            }
+          }
+        }
+      }
+    }
 
     stage("Infrastructure Deploy") {
       when {
         expression {
           ACTION == "Deploy"
         }
+      }
+      input {
+        message "Should we create infrastructure?"
+        ok "Yes we should"
       }
       steps {
         script {
@@ -63,6 +87,10 @@ pipeline {
         expression {
           ACTION == "Destroy"
         }
+      }
+      input {
+        message "Should we destroy infrastructure?"
+        ok "Yes we should"
       }
       steps {
         script {
