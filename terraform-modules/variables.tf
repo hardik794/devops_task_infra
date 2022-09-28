@@ -1,12 +1,12 @@
 variable "region" {
   type        = string
-  default     = "us-east-1"
+  default     = "eu-north-1"
   description = "Region for stack"
 }
 
 variable "azs" {
   type        = list(string)
-  default     = ["us-east-1a", "us-east-1b", "us-east-1c"]
+  default     = ["eu-north-1a", "eu-north-1b", "eu-north-1c"]
   description = "Availability zones to use"
 }
 
