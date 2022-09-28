@@ -1,26 +1,20 @@
 locals {
-  user_data = <<EOT
+  user_data = <<-EOT
   #!/bin/bash
-  touch $HOME/first.txt
   sudo apt-get update && apt install docker.io -y
-  touch $HOME/second.txt
   sudo apt-get update && apt-get install -y apt-transport-https curl 
   sudo curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key add -
-  touch $HOME/thrid.txt
   sudo cat <<EOF >/etc/apt/sources.list.d/kubernetes.list
   deb https://apt.kubernetes.io/ kubernetes-xenial main
   EOF
-  touch $HOME/forth.txt
   sudo apt-get update
   sudo apt-get install -y kubelet kubeadm kubectl
   sudo apt-mark hold kubelet kubeadm kubectl
   sudo swapoff -a
-  touch $HOME/fifth.txt
   sudo kubeadm init --control-plane-endpoint ${aws_eip.example.public_ip}:6443 --pod-network-cidr=192.168.0.0/16 --ignore-preflight-errors=NumCPU --ignore-preflight-errors=Mem
-  touch $HOME/sixth.txt
-  mkdir -p $HOME/.kube
-  sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
-  sudo chown $(id -u):$(id -g) $HOME/.kube/config
+  sudo -u ubuntu mkdir -p /home/ubuntu/.kube
+  sudo cp -i /etc/kubernetes/admin.conf /home/ubuntu/.kube/config
+  sudo chown ubuntu:ubuntu /home/ubuntu/.kube/config
   EOT
 }
 module "ec2_security_group" {
@@ -73,8 +67,8 @@ module "ec2_instance" {
   # for_each = toset(var.ec2_name)
   name = "${var.name}-ec2-instance"
 
-  ami                    = "ami-0efda064d1b5e46a5"
-  instance_type          = "t3.micro"
+  ami                    = "ami-08c40ec9ead489470"
+  instance_type          = "t2.medium"
   key_name               = module.key_pair.key_pair_name
   vpc_security_group_ids = [module.ec2_security_group.security_group_id]
   subnet_id              = module.vpc.public_subnets[0]
