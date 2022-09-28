@@ -78,9 +78,10 @@ pipeline {
               sh "terraform apply -auto-approve -no-color"
               EC2_PUBLIC_IP=sh(returnStdout: true, script: "terraform output ec2_complete_public_ip").trim()
               sh '''
+              host="$EC2_PUBLIC_IP"
               while true; do
-                if ssh -i test.pem -o StrictHostKeyChecking=no ubuntu@${EC2_PUBLIC_IP} test -e /home/ubuntu/.kube/config; then
-                    scp -i test.pem ubuntu@${EC2_PUBLIC_IP}:~/.kube/config .
+                if ssh -i test.pem -o StrictHostKeyChecking=no host test -e /home/ubuntu/.kube/config; then
+                    scp -i test.pem host:~/.kube/config .
                     break;
                 else
                     echo "Not Found"
@@ -113,12 +114,12 @@ pipeline {
             ) {
               def kubeconfig = new File(env.WORKSPACE, "terraform-modules").getParent() + "/config"
               withEnv(["KUBECONFIG=${kubeconfig}"]) {
-                  sh "kubectl apply -f deployment-hello.yaml"
-                  sh "kubectl apply -f fluentd.yaml"
-                  sh "kubectl apply -f php-apche.yaml"
-                  sh "kubectl apply -f kube-state-metrics-configs/"
-                  sh "kubectl apply -f prometheus/"
-                  sh "kubectl apply -f grafana/"
+                sh "kubectl apply -f deployment-hello.yaml"
+                sh "kubectl apply -f fluentd.yaml"
+                sh "kubectl apply -f php-apche.yaml"
+                sh "kubectl apply -f kube-state-metrics-configs/"
+                sh "kubectl apply -f prometheus/"
+                sh "kubectl apply -f grafana/"
               }
             }
           }
