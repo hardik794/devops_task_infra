@@ -1,3 +1,4 @@
+def EC2_PUBLIC_IP
 pipeline {
   agent any
   environment {
@@ -50,8 +51,7 @@ pipeline {
         }
       }
     }
-
-    stage("Infrastructure Deploy") {
+    stage("Infrastructure Apply") {
       when {
         expression {
           ACTION == "Deploy"
@@ -76,6 +76,50 @@ pipeline {
             ) {
 
               sh "terraform apply -auto-approve -no-color"
+              EC2_PUBLIC_IP=sh(returnStdout: true, script: "terraform output ec2_complete_public_ip").trim()
+              sh '''
+              while true; do
+                if ssh -i test.pem -o StrictHostKeyChecking=no ubuntu@${EC2_PUBLIC_IP} test -e /home/ubuntu/.kube/config; then
+                    scp -i test.pem ubuntu@${EC2_PUBLIC_IP}:~/.kube/config .
+                    break;
+                else
+                    echo "Not Found"
+                    sleep 5
+                fi
+              done'''
+            }
+          }
+        }
+      }
+    }
+    stage("Application Deploy") {
+      when {
+        expression {
+          ACTION == "Deploy"
+        }
+      }
+      steps {
+        script {
+          dir('k8s-deployments') {
+            withCredentials(
+              [
+                [
+                  $class: 'AmazonWebServicesCredentialsBinding',
+                  credentialsId: 'AWS Credentials',
+                  accessKeyVariable: 'AWS_ACCESS_KEY_ID',
+                  secretKeyVariable: 'AWS_SECRET_ACCESS_KEY'
+                ]
+              ]
+            ) {
+              def kubeconfig = new File(env.WORKSPACE, "terraform-modules").getParent() + "/config"
+              withEnv(["KUBECONFIG=${kubeconfig}"]) {
+                  sh "kubectl apply -f deployment-hello.yaml"
+                  sh "kubectl apply -f fluentd.yaml"
+                  sh "kubectl apply -f php-apche.yaml"
+                  sh "kubectl apply -f kube-state-metrics-configs/"
+                  sh "kubectl apply -f prometheus/"
+                  sh "kubectl apply -f grafana/"
+              }
             }
           }
         }
