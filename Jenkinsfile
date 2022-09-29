@@ -82,7 +82,7 @@ pipeline {
                             sh """
                             while true; do
                             if ssh -i /var/lib/jenkins/pem/$PEM_KEY -o StrictHostKeyChecking=no ubuntu@$EC2_PUBLIC_IP test -e /home/ubuntu/.kube/config; then
-                                scp -i /var/lib/jenkins/pem/$PEM_KEY -o StrictHostKeyChecking=no ubuntu@$EC2_PUBLIC_IP:~/.kube/config
+                                scp -i /var/lib/jenkins/pem/$PEM_KEY -o StrictHostKeyChecking=no ubuntu@$EC2_PUBLIC_IP:~/.kube/config .
                                 mv config /var/lib/jenkins/kubeconfig/$INFRA_NAME
                                 break;
                             else
