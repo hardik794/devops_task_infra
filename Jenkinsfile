@@ -1,4 +1,3 @@
-def EC2_PUBLIC_IP
 pipeline {
     agent any
     environment {
@@ -75,8 +74,7 @@ pipeline {
                         ]
                         ) {
                             sh "terraform apply -auto-approve -no-color"
-                            EC2_PUBLIC_IP=sh(returnStdout: true, script: "terraform output ec2_complete_public_ip").trim()
-                            sh "echo $EC2_PUBLIC_IP"
+                            def EC2_PUBLIC_IP=sh(returnStdout: true, script: "terraform output ec2_complete_public_ip").trim()
                             sh '''
                             ip="${EC2_PUBLIC_IP}"
                             while true; do
