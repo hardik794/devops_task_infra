@@ -1,3 +1,4 @@
+def PEM_KEY
 pipeline {
     agent any
     environment {
@@ -6,7 +7,7 @@ pipeline {
         TERRAFORM_STATE_S3_BUCKET = "hands-on-tf-state"
         TERRAFORM_STATE_S3_BUCKET_REGION = "us-east-1"
         INFRA_NAME = "${params.InfraName}"
-        ACTION = "${params.Action}"
+        ACTION = "${params.Action}" 
     }
     stages {
         stage("Initialization") {
@@ -75,13 +76,14 @@ pipeline {
                         ) {
                             sh "terraform apply -auto-approve -no-color"
                             def EC2_PUBLIC_IP=sh(returnStdout: true, script: "terraform output ec2_complete_public_ip").trim()
+                            PEM_KEY = "$INFRA_NAME" + ".pem"
                             sh "chmod 400 test.pem"
-                            sh "mv test.pem ./../test_$INFRA_NAME.pem"
+                            sh "mv test.pem /var/lib/jenkins/pem/$PEM_KEY"
                             sh """
                             while true; do
-                            if ssh -i ./../test_$INFRA_NAME.pem -o StrictHostKeyChecking=no ubuntu@$EC2_PUBLIC_IP test -e /home/ubuntu/.kube/config; then
-                                scp -i ./../test_$INFRA_NAME.pem -o StrictHostKeyChecking=no ubuntu@$EC2_PUBLIC_IP:~/.kube/config
-                                mv config ./../config_$INFRA_NAME
+                            if ssh -i /var/lib/jenkins/pem/$PEM_KEY -o StrictHostKeyChecking=no ubuntu@$EC2_PUBLIC_IP test -e /home/ubuntu/.kube/config; then
+                                scp -i /var/lib/jenkins/pem/$PEM_KEY -o StrictHostKeyChecking=no ubuntu@$EC2_PUBLIC_IP:~/.kube/config
+                                mv config /var/lib/jenkins/kubeconfig/$INFRA_NAME
                                 break;
                             else
                                 echo "Not Found"
@@ -113,15 +115,13 @@ pipeline {
                             ]
                         ]
                         ) {
-                            sh "export KUBECONFIG=./../config_$INFRA_NAME"
-                            // withEnv(["KUBECONFIG=${kubeconfig}"]) {
+                            sh "export KUBECONFIG=/var/lib/jenkins/kubeconfig/$INFRA_NAME"
                             sh "kubectl apply -f deployment-hello.yaml"
                             sh "kubectl apply -f fluentd.yaml"
                             sh "kubectl apply -f php-apche.yaml"
                             sh "kubectl apply -f kube-state-metrics-configs/"
                             sh "kubectl apply -f prometheus/"
                             sh "kubectl apply -f grafana/"
-                            // }
                         }
                     }
                 }
@@ -151,8 +151,8 @@ pipeline {
                         ]
                         ) {
                             sh "terraform destroy -auto-approve -no-color"
-                            sh "rm -rf ./../test_$INFRA_NAME.pem"
-                            sh "rm -rf ./../config_$INFRA_NAME"
+                            sh "rm -rf /var/lib/jenkins/pem/$PEM_KEY"
+                            sh "rm -rf /var/lib/jenkins/kubeconfig/$INFRA_NAME"
                         }
                     }
                 }
