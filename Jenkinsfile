@@ -132,7 +132,7 @@ pipeline {
                 }
             }
             input{
-                message "Should we create infrastructure?"
+                message "Should we destroy infrastructure?"
                 ok "Yes we should"
             }
             steps {
