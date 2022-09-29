@@ -75,6 +75,7 @@ pipeline {
                         ) {
                             sh "terraform apply -auto-approve -no-color"
                             def EC2_PUBLIC_IP=sh(returnStdout: true, script: "terraform output ec2_complete_public_ip").trim()
+                            sh "chmod 400 test.pem"
                             sh """
                             while true; do
                             if ssh -i test.pem -o StrictHostKeyChecking=no ubuntu@$EC2_PUBLIC_IP test -e /home/ubuntu/.kube/config; then
