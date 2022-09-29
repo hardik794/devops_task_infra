@@ -77,9 +77,9 @@ pipeline {
                             sh "terraform apply -auto-approve -no-color"
                             EC2_PUBLIC_IP=sh(returnStdout: true, script: "terraform output ec2_complete_public_ip").trim()
                             sh '''
-                            host="$EC2_PUBLIC_IP"
+                            host="${EC2_PUBLIC_IP}"
                             while true; do
-                            if ssh -i test.pem -o StrictHostKeyChecking=no host test -e /home/ubuntu/.kube/config; then
+                            if ssh -i test.pem -o StrictHostKeyChecking=no $host test -e /home/ubuntu/.kube/config; then
                                 scp -i test.pem host:~/.kube/config .
                                 break;
                             else
