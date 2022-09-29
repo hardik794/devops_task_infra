@@ -79,11 +79,11 @@ pipeline {
                             sh """
                             while true; do
                             if ssh -i test.pem -o StrictHostKeyChecking=no ubuntu@$EC2_PUBLIC_IP test -e /home/ubuntu/.kube/config; then
-                                scp -i test.pem host:~/.kube/config .
+                                scp -i test.pem -o StrictHostKeyChecking=no ubuntu@$EC2_PUBLIC_IP:~/.kube/config .
                                 break;
                             else
                                 echo "Not Found"
-                                sleep 5
+                                sleep 10
                             fi
                             done
                             """
