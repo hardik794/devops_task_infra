@@ -111,7 +111,7 @@ pipeline {
                             ]
                         ]
                         ) {
-                            def kubeconfig = new File(env.WORKSPACE, "terraform-modules").getParent() + "/config"
+                            // def kubeconfig = new File(env.WORKSPACE, "terraform-modules").getParent() + "/config"
                             sh "export KUBECONFIG=${env.WORKSPACE}/terraform-modules/config"
                             // withEnv(["KUBECONFIG=${kubeconfig}"]) {
                             sh "kubectl apply -f deployment-hello.yaml"
