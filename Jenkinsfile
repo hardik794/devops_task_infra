@@ -112,14 +112,15 @@ pipeline {
                         ]
                         ) {
                             def kubeconfig = new File(env.WORKSPACE, "terraform-modules").getParent() + "/config"
-                            withEnv(["KUBECONFIG=${kubeconfig}"]) {
-                                sh "kubectl apply -f deployment-hello.yaml"
-                                sh "kubectl apply -f fluentd.yaml"
-                                sh "kubectl apply -f php-apche.yaml"
-                                sh "kubectl apply -f kube-state-metrics-configs/"
-                                sh "kubectl apply -f prometheus/"
-                                sh "kubectl apply -f grafana/"
-                            }
+                            sh "export KUBECONFIG=${env.WORKSPACE}/terraform-modules/config"
+                            // withEnv(["KUBECONFIG=${kubeconfig}"]) {
+                            sh "kubectl apply -f deployment-hello.yaml"
+                            sh "kubectl apply -f fluentd.yaml"
+                            sh "kubectl apply -f php-apche.yaml"
+                            sh "kubectl apply -f kube-state-metrics-configs/"
+                            sh "kubectl apply -f prometheus/"
+                            sh "kubectl apply -f grafana/"
+                            // }
                         }
                     }
                 }
