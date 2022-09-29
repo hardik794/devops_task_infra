@@ -76,12 +76,12 @@ pipeline {
                             sh "terraform apply -auto-approve -no-color"
                             def EC2_PUBLIC_IP=sh(returnStdout: true, script: "terraform output ec2_complete_public_ip").trim()
                             sh "chmod 400 test.pem"
-                            sh "mv test.pem /var/lib/jenkins/pem/test_$INFRA_NAME.pem"
+                            sh "mv test.pem ./../test_$INFRA_NAME.pem"
                             sh """
                             while true; do
-                            if ssh -i /var/lib/jenkins/pem/test_$INFRA_NAME.pem -o StrictHostKeyChecking=no ubuntu@$EC2_PUBLIC_IP test -e /home/ubuntu/.kube/config; then
-                                scp -i /var/lib/jenkins/pem/test_$INFRA_NAME.pem -o StrictHostKeyChecking=no ubuntu@$EC2_PUBLIC_IP:~/.kube/config
-                                mv config /var/lib/jenkins/kubeconfig/config_$INFRA_NAME
+                            if ssh -i ./../test_$INFRA_NAME.pem -o StrictHostKeyChecking=no ubuntu@$EC2_PUBLIC_IP test -e /home/ubuntu/.kube/config; then
+                                scp -i ./../test_$INFRA_NAME.pem -o StrictHostKeyChecking=no ubuntu@$EC2_PUBLIC_IP:~/.kube/config
+                                mv config ./../config_$INFRA_NAME
                                 break;
                             else
                                 echo "Not Found"
@@ -113,7 +113,7 @@ pipeline {
                             ]
                         ]
                         ) {
-                            sh "export KUBECONFIG=/var/lib/jenkins/kubeconfig/config_$INFRA_NAME"
+                            sh "export KUBECONFIG=./../config_$INFRA_NAME"
                             // withEnv(["KUBECONFIG=${kubeconfig}"]) {
                             sh "kubectl apply -f deployment-hello.yaml"
                             sh "kubectl apply -f fluentd.yaml"
@@ -151,8 +151,8 @@ pipeline {
                         ]
                         ) {
                             sh "terraform destroy -auto-approve -no-color"
-                            sh "rm -rf /var/lib/jenkins/pem/test_$INFRA_NAME.pem"
-                            sh "rm -rf /var/lib/jenkins/kubeconfig/config_$INFRA_NAME"
+                            sh "rm -rf ./../test_$INFRA_NAME.pem"
+                            sh "rm -rf ./../config_$INFRA_NAME"
                         }
                     }
                 }
