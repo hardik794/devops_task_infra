@@ -57,11 +57,11 @@ pipeline {
                     ACTION == "Deploy"
                 }
             }
+            input{
+                message "Should we create infrastructure?"
+                ok "Yes we should"
+            }
             steps {
-                input{
-                    message "Should we create infrastructure?"
-                    ok "Yes we should"
-                }
                 script {
                     dir('terraform-modules') {
                         withCredentials(
@@ -127,15 +127,15 @@ pipeline {
         }
         stage("Infrastructure Destroy") {
             when {
-            expression {
-                ACTION == "Destroy"
+                expression {
+                    ACTION == "Destroy"
+                }
             }
+            input{
+                message "Should we create infrastructure?"
+                ok "Yes we should"
             }
             steps {
-                input{
-                    message "Should we create infrastructure?"
-                    ok "Yes we should"
-                }
                 script {
                     dir('terraform-modules') {
                         withCredentials(
