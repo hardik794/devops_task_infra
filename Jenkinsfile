@@ -1,4 +1,3 @@
-def PEM_KEY
 pipeline {
     agent any
     environment {
@@ -8,6 +7,7 @@ pipeline {
         TERRAFORM_STATE_S3_BUCKET_REGION = "us-east-1"
         INFRA_NAME = "${params.InfraName}"
         ACTION = "${params.Action}" 
+        PEM_KEY = "$INFRA_NAME" + ".pem"
     }
     stages {
         stage("Initialization") {
@@ -76,7 +76,6 @@ pipeline {
                         ) {
                             sh "terraform apply -auto-approve -no-color"
                             def EC2_PUBLIC_IP=sh(returnStdout: true, script: "terraform output ec2_complete_public_ip").trim()
-                            PEM_KEY = "$INFRA_NAME" + ".pem"
                             sh "chmod 400 test.pem"
                             sh "mv test.pem /var/lib/jenkins/pem/$PEM_KEY"
                             sh """
