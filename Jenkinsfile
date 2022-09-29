@@ -76,10 +76,12 @@ pipeline {
                             sh "terraform apply -auto-approve -no-color"
                             def EC2_PUBLIC_IP=sh(returnStdout: true, script: "terraform output ec2_complete_public_ip").trim()
                             sh "chmod 400 test.pem"
+                            sh "mv test.pem /home/devuser/pem/test_$INFRA_NAME.pem"
                             sh """
                             while true; do
-                            if ssh -i test.pem -o StrictHostKeyChecking=no ubuntu@$EC2_PUBLIC_IP test -e /home/ubuntu/.kube/config; then
-                                scp -i test.pem -o StrictHostKeyChecking=no ubuntu@$EC2_PUBLIC_IP:~/.kube/config .
+                            if ssh -i /home/devuser/pem/test_$INFRA_NAME.pem -o StrictHostKeyChecking=no ubuntu@$EC2_PUBLIC_IP test -e /home/ubuntu/.kube/config; then
+                                scp -i /home/devuser/pem/test_$INFRA_NAME.pem -o StrictHostKeyChecking=no ubuntu@$EC2_PUBLIC_IP:~/.kube/config
+                                mv config /home/devuser/kubeconfig/config_$INFRA_NAME
                                 break;
                             else
                                 echo "Not Found"
@@ -111,8 +113,7 @@ pipeline {
                             ]
                         ]
                         ) {
-                            // def kubeconfig = new File(env.WORKSPACE, "terraform-modules").getParent() + "/config"
-                            sh "export KUBECONFIG=${env.WORKSPACE}/terraform-modules/config"
+                            sh "export KUBECONFIG=/home/devuser/kubeconfig/config_$INFRA_NAME"
                             // withEnv(["KUBECONFIG=${kubeconfig}"]) {
                             sh "kubectl apply -f deployment-hello.yaml"
                             sh "kubectl apply -f fluentd.yaml"
@@ -150,11 +151,17 @@ pipeline {
                         ]
                         ) {
                             sh "terraform destroy -auto-approve -no-color"
+                            sh "rm -rf /home/devuser/pem/test_$INFRA_NAME.pem"
+                            sh "rm -rf /home/devuser/kubeconfig/config_$INFRA_NAME"
                         }
                     }
                 }
-                cleanWs()
             }
+        }
+    }
+    post {
+        always {
+            cleanWs()
         }
     }
 }
