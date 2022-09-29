@@ -58,10 +58,10 @@ pipeline {
                 }
             }
             steps {
-                input(
+                input{
                     message "Should we create infrastructure?"
                     ok "Yes we should"
-                )
+                }
                 script {
                     dir('terraform-modules') {
                         withCredentials(
@@ -132,10 +132,10 @@ pipeline {
             }
             }
             steps {
-                input(
+                input{
                     message "Should we create infrastructure?"
                     ok "Yes we should"
-                )
+                }
                 script {
                     dir('terraform-modules') {
                         withCredentials(
