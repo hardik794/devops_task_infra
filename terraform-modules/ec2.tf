@@ -33,8 +33,9 @@ locals {
   sudo yum install -y kubelet kubeadm kubectl --disableexcludes=kubernetes
   sudo systemctl enable --now kubelet
   sudo kubeadm init --control-plane-endpoint ${aws_eip.example.public_ip}:6443 --pod-network-cidr=192.168.0.0/16
+  sleep 10
   kubectl apply -f https://docs.projectcalico.org/manifests/calico.yaml
-  kubectl taint nodes --all node-role.kubernetes.io/master-
+  kubectl taint nodes --all node-role.kubernetes.io/control-plane-
   sudo -u ec2-user mkdir -p /home/ec2-user/.kube
   sudo cp -i /etc/kubernetes/admin.conf /home/ec2-user/.kube/config
   sudo chown ec2-user:ec2-user /home/ec2-user/.kube/config

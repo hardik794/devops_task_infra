@@ -115,13 +115,11 @@ pipeline {
                             ]
                         ]
                         ) {
-                            sh "export KUBECONFIG=/var/lib/jenkins/kubeconfig/$INFRA_NAME"
-                            sh "kubectl apply -f deployment-hello.yaml"
-                            sh "kubectl apply -f fluentd.yaml"
-                            sh "kubectl apply -f php-apche.yaml"
-                            sh "kubectl apply -f kube-state-metrics-configs/"
-                            sh "kubectl apply -f prometheus/"
-                            sh "kubectl apply -f grafana/"
+                            withEnv(["KUBECONFIG=/var/lib/jenkins/kubeconfig/$INFRA_NAME"]) {
+                                sh "kubectl apply -f deployment-hello.yaml"
+                                sh "kubectl apply -f fluentd.yaml"
+                                sh "kubectl apply -f php-apche.yaml"
+                            } 
                         }
                     }
                 }
