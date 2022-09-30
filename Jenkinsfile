@@ -1,3 +1,4 @@
+def EC2_PUBLIC_IP
 pipeline {
     agent any
     environment {
@@ -75,7 +76,7 @@ pipeline {
                         ]
                         ) {
                             sh "terraform apply -auto-approve -no-color"
-                            def EC2_PUBLIC_IP=sh(returnStdout: true, script: "terraform output ec2_complete_public_ip").trim()
+                            EC2_PUBLIC_IP=sh(returnStdout: true, script: "terraform output ec2_complete_public_ip").trim()
                             sh "chmod 400 test.pem"
                             sh "mv test.pem /var/lib/jenkins/pem/$PEM_KEY"
                             sh """

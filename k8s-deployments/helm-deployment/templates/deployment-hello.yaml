@@ -32,12 +32,11 @@ kind: Service
 metadata:
   name: "hello-svc"
 spec:
-  type: NodePort
+  type: LoadBalancer
   ports:
     - name: http
       port: 80
       protocol: TCP
-      nodePort: 30036
   selector:
     app: hello
 
