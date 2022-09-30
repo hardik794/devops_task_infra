@@ -80,9 +80,10 @@ pipeline {
                             sh "mv test.pem /var/lib/jenkins/pem/$PEM_KEY"
                             sh """
                             while true; do
-                            if ssh -i /var/lib/jenkins/pem/$PEM_KEY -o StrictHostKeyChecking=no ubuntu@$EC2_PUBLIC_IP test -e /home/ubuntu/.kube/config; then
-                                scp -i /var/lib/jenkins/pem/$PEM_KEY -o StrictHostKeyChecking=no ubuntu@$EC2_PUBLIC_IP:~/.kube/config .
+                            if ssh -i /var/lib/jenkins/pem/$PEM_KEY -o StrictHostKeyChecking=no ec2-user@$EC2_PUBLIC_IP test -e /home/ec2-user/.kube/config; then
+                                scp -i /var/lib/jenkins/pem/$PEM_KEY -o StrictHostKeyChecking=no ec2-user@$EC2_PUBLIC_IP:~/.kube/config .
                                 mv config /var/lib/jenkins/kubeconfig/$INFRA_NAME
+                                sleep 10
                                 break;
                             else
                                 echo "Not Found"
