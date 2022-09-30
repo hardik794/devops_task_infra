@@ -9,7 +9,7 @@ pipeline {
         script {
           dir('k8s-deployments') {
             withEnv(["KUBECONFIG=/var/lib/jenkins/kubeconfig/$INFRA_NAME"]) {
-              sh "kubectl apply -f deployment-hello.yaml"
+              sh "helm upgrade -i hello helm-deployment --set images.hello.tag=${IMAGE_TAG}"
               sh "kubectl apply -f fluentd.yaml"
               sh "kubectl apply -f php-apche.yaml"
             }   

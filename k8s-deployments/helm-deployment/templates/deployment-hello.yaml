@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
       - name: hello
-        image: hardik794/devops-task:main-1.2.1
+        image: "{{ .Values.images.hello.repository }}:{{ .Values.images.hello.tag }}"
         imagePullPolicy: Always
         args: [/bin/sh, -c,
             'i=0; while true; do echo "$i:Hello"; i=$((i+1)); sleep 3; done']
