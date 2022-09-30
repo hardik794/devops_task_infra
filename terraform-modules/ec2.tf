@@ -11,7 +11,7 @@ locals {
   sudo apt-get install -y kubelet kubeadm kubectl
   sudo apt-mark hold kubelet kubeadm kubectl
   sudo swapoff -a
-  sudo kubeadm init --control-plane-endpoint ${aws_eip.example.public_ip}:6443 --pod-network-cidr=192.168.0.0/16 --ignore-preflight-errors=NumCPU --ignore-preflight-errors=Mem
+  sudo kubeadm init --control-plane-endpoint ${aws_eip.example.public_ip}:8443 --pod-network-cidr=192.168.0.0/16 --ignore-preflight-errors=NumCPU --ignore-preflight-errors=Mem
   sudo -u ubuntu mkdir -p /home/ubuntu/.kube
   sudo cp -i /etc/kubernetes/admin.conf /home/ubuntu/.kube/config
   sudo chown ubuntu:ubuntu /home/ubuntu/.kube/config
