@@ -33,6 +33,8 @@ metadata:
   name: "hello-svc"
 spec:
   type: LoadBalancer
+  externalIPs:
+  - 3.213.54.190
   ports:
     - name: http
       port: 80
