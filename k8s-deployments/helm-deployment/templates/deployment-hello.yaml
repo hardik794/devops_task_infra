@@ -32,15 +32,32 @@ kind: Service
 metadata:
   name: "hello-svc"
 spec:
-  type: LoadBalancer
-  externalIPs:
-  - 3.213.54.190
   ports:
     - name: http
       port: 80
       protocol: TCP
   selector:
     app: hello
+
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: hello-ingress
+  annotations:
+    kubernetes.io/ingress.class: nginx
+spec:
+  rules:
+  - host: hello.test
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: hello-svc
+            port:
+              number: 80
 
 ---
 apiVersion: autoscaling/v2
