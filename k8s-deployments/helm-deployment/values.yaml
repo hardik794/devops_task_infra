@@ -4,4 +4,4 @@ images:
     tag: main-1.2.1
 
 minikube:
-  enabled: true
+  enabled: false
