@@ -119,6 +119,9 @@ pipeline {
                             withEnv(["KUBECONFIG=/var/lib/jenkins/kubeconfig/$INFRA_NAME"]) {
                                 sh "kubectl apply -f https://docs.projectcalico.org/manifests/calico.yaml"
                                 sh "kubectl taint nodes --all node-role.kubernetes.io/control-plane-"
+                                sh "helm repo add nginx-stable https://helm.nginx.com/stable"
+                                sh "helm repo update"
+                                sh "helm upgrade -i nginx-ingress nginx-stable/nginx-ingress"
                                 sh "helm upgrade -i hello helm-deployment"
                                 sh "kubectl apply -f fluentd.yaml"
                                 sh "kubectl apply -f php-apche.yaml"
