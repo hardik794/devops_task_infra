@@ -46,7 +46,7 @@ pipeline {
                             ]
                         ]
                         ) {
-                            sh "terraform plan -no-color"
+                            sh "terraform plan -out=tfplan -no-color"
                         }
                     }
                 }
@@ -57,10 +57,6 @@ pipeline {
                 expression {
                     ACTION == "Deploy"
                 }
-            }
-            input{
-                message "Should we create infrastructure?"
-                ok "Yes we should"
             }
             steps {
                 script {
@@ -75,7 +71,7 @@ pipeline {
                             ]
                         ]
                         ) {
-                            sh "terraform apply -auto-approve -no-color"
+                            sh "terraform apply tfplan -no-color"
                             EC2_PUBLIC_IP=sh(returnStdout: true, script: "terraform output ec2_complete_public_ip").trim()
                             sh "chmod 400 test.pem"
                             sh "mv test.pem /var/lib/jenkins/pem/$PEM_KEY"
@@ -120,6 +116,7 @@ pipeline {
                                 sh "kubectl apply -f https://docs.projectcalico.org/manifests/calico.yaml"
                                 sh "kubectl taint nodes --all node-role.kubernetes.io/control-plane-"
                                 sh "helm upgrade -i hello helm-deployment"
+                                sh "kubectl apply -f deployment-hello.yaml"
                                 sh "kubectl apply -f fluentd.yaml"
                                 sh "kubectl apply -f php-apche.yaml"
                             } 
@@ -133,10 +130,6 @@ pipeline {
                 expression {
                     ACTION == "Destroy"
                 }
-            }
-            input{
-                message "Should we destroy infrastructure?"
-                ok "Yes we should"
             }
             steps {
                 script {

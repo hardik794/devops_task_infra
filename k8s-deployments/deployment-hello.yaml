@@ -1,21 +1,21 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: hello-deployment
+  name: hello-deployment-fluentd
   labels:
-    app: hello
+    app: hello-fluentd
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: hello
+      app: hello-fluentd
   template:
     metadata:
       labels:
-        app: hello
+        app: hello-fluentd
     spec:
       containers:
-      - name: hello
+      - name: hello-fluentd
         image: hardik794/devops-task:main-1.2.1
         imagePullPolicy: Always
         args: [/bin/sh, -c,
@@ -30,7 +30,7 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: "hello-svc"
+  name: "hello-svc-fluentd"
 spec:
   type: NodePort
   ports:
@@ -39,18 +39,18 @@ spec:
       protocol: TCP
       nodePort: 30036
   selector:
-    app: hello
+    app: hello-fluentd
 
 ---
 apiVersion: autoscaling/v2
 kind: HorizontalPodAutoscaler
 metadata:
-  name: "hello-hpa"
+  name: "hello-hpa-fluentd"
 spec:
   scaleTargetRef:
     apiVersion: apps/v1
     kind: Deployment
-    name: "hello-deployment"
+    name: "hello-deployment-fluentd"
   minReplicas: 1
   maxReplicas: 5
   metrics:
