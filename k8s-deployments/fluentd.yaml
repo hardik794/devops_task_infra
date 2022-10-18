@@ -80,7 +80,7 @@ spec:
           path: /var/lib/docker/containers
       - name: log-data
         hostPath:
-          path: /home/ubuntu
+          path: /home
 
 ---
 apiVersion: v1
